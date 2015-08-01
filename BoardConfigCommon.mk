@@ -28,6 +28,7 @@ TARGET_BOOTLOADER_BOARD_NAME := MSM8916
 TARGET_NO_BOOTLOADER := true
 
 # Architecture
+TARGET_CPU_SMP := true
 TARGET_BOARD_SUFFIX := _32
 TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv7-a-neon
@@ -39,8 +40,7 @@ TARGET_CPU_VARIANT := cortex-a53
 TARGET_SYSTEM_PROP := $(VENDOR_PATH)/system.prop
 
 # Power HAL
-TARGET_POWERHAL_SET_INTERACTIVE_EXT := $(LOCAL_PATH)/power/power_ext.c
-TARGET_POWERHAL_VARIANT := qcom
+TARGET_POWERHAL_SET_INTERACTIVE_EXT := device/samsung/msm8916-common/power/power_ext.c
 
 # Kernel
 BOARD_CUSTOM_BOOTIMG_MK := $(VENDOR_PATH)/mkbootimg.mk
@@ -48,7 +48,7 @@ BOARD_KERNEL_BASE := 0x80000000
 BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x3F ehci-hcd.park=3 androidboot.bootdevice=7824900.sdhci
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_SEPARATED_DT := true
-BOARD_KERNEL_TAGS_OFFSET := 0x01e00000
+BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
 BOARD_RAMDISK_OFFSET     := 0x02000000
 TARGET_KERNEL_SOURCE := kernel/samsung/msm8916
 
@@ -59,6 +59,7 @@ BOARD_ANT_WIRELESS_DEVICE := "vfs-prerelease"
 AUDIO_FEATURE_ENABLED_KPI_OPTIMIZE := true
 AUDIO_FEATURE_LOW_LATENCY_PRIMARY := true
 BOARD_USES_ALSA_AUDIO := true
+TARGET_USES_QCOM_MM_AUDIO := true
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
@@ -74,15 +75,6 @@ MALLOC_IMPL := dlmalloc
 # Crypto
 TARGET_HW_DISK_ENCRYPTION := true
 
-# Dex
-ifeq ($(HOST_OS),linux)
-  ifeq ($(TARGET_BUILD_VARIANT),user)
-    ifeq ($(WITH_DEXPREOPT),)
-      WITH_DEXPREOPT := true
-    endif
-  endif
-endif
-
 # Display
 BOARD_EGL_CFG := $(VENDOR_PATH)/configs/egl.cfg
 MAX_EGL_CACHE_KEY_SIZE := 12*1024
@@ -94,15 +86,14 @@ TARGET_USES_C2D_COMPOSITION := true
 TARGET_USES_ION := true
 USE_OPENGL_RENDERER := true
 
-# FM
-AUDIO_FEATURE_ENABLED_FM := true
-TARGET_QCOM_NO_FM_FIRMWARE := true
+# Flags
+#COMMON_GLOBAL_CFLAGS += -D_ION_HEAP_MASK_COMPATIBILITY_WA
 
 # Fonts
 EXTENDED_FONT_FOOTPRINT := true
 
 # Init
-TARGET_INIT_VENDOR_LIB := libinit_msm
+#TARGET_INIT_VENDOR_LIB := libinit_msm
 TARGET_PLATFORM_DEVICE_BASE := /devices/soc.0/
 
 # Power
@@ -121,6 +112,20 @@ PROTOBUF_SUPPORTED := true
 
 # SELinux
 include device/qcom/sepolicy/sepolicy.mk
+
+BOARD_SEPOLICY_DIRS += \
+    device/samsung/msm8916-common/sepolicy
+
+BOARD_SEPOLICY_UNION += \
+    bluetooth_loader.te \
+    healthd.te \
+    file.te \
+    qseecomd.te \
+    surfaceflinger.te \
+    system_server.te \
+    wcnss_service.te \
+    file_contexts \
+    property_contexts
 
 # Time services
 BOARD_USES_QC_TIME_SERVICES := true
